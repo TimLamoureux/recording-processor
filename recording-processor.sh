@@ -88,7 +88,7 @@ function process_params {
 }
 
 function defaults {
-    VERSION="1.0"
+    VERSION="1.1"
     GDRIVE_FOLDER_ID="radio-recordings"
     DELETE_ORIGINALS=false
     UPLOAD=false
@@ -159,8 +159,15 @@ find "${IN}" -name "${PREFIX}*${EXT}" -daystart -mtime "${DAYS_AGO}" -print0 | s
     #echo "$recording"
     #echo $(stat -c %Y ${recording})
     #echo $(stat -c %y ${recording})
-    # Remove 3600 seconds from last modification to get creation time
-    mdate=$(date -d "@$(($(stat -c %Y ${recording})-3600))" '+%Y%m%d_%H00')
+    # Remove 3600 seconds from last modification to get creation time as files are saved every hour
+    mdate_epoch=$(($(stat -c %Y ${recording})-3600))
+
+    #Round epoch to nearest hour to (partly) avoid bugs with 2 recordings in same hour, especially files created at hh:59
+    mdate=$(date -d "@$(( (($mdate_epoch + 1800) / 3600 ) * 3600 ))"  '+%Y%m%d_%H00')
+
+    echo "${recording} stat_mdate: $(stat -c %y ${recording}) processed_modified_date: $mdate"
+
+    #mdate=$(date -d "@$mdate_epoch" '+%Y%m%d_%H00')
     new_file="${PREFIX}${mdate}.${EXT}"
     cp "$recording" "${OUT}/${new_file}"
 
@@ -177,7 +184,7 @@ if [ ! -z "${FILES}" ]; then
     ARCHIVE="${PREFIX}${day}.zip"
     (cd "${OUT}" && zip -q9m -P "1DSleZOzguIGl3WOMozws3Ao5OoEX46h5xS850jf992fOIQA" "$ARCHIVE" ${PREFIX}${day}*.${EXT}) && echo "Archive ${OUT}/${ARCHIVE} generated." || "Error"
 
-    if [ $UPLOAD ]; then
+    if $UPLOAD; then
         upload "${ARCHIVE}"
     fi
 else

@@ -1,0 +1,47 @@
+# Preceed getops args with : to silence output
+
+OPTIND=1         # Reset in case getopts has been used previously in the shell.
+while getopts "ue:d:" opt; do
+    case $opt in
+        u)
+            echo "Upload $OPTARG."
+            UPLOAD=true
+            ;;
+        e)
+            echo "Extension .$OPTARG" >&2
+            FORMAT=$OPTARG
+            ;;
+        d)
+            echo "Processing files from $OPTARG days ago" >&2
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            # exit 1
+            ;;
+        :)
+            echo "Option -$OPTARG requires an argument." >&2
+            # exit 1
+            ;;
+    esac
+done
+
+# Process remaining arguments for In and Out folders
+shift $(expr $OPTIND - 1 )
+while test $# -gt 0; do
+  echo "Other arguments: $1"
+  shift
+done
+
+
+
+./radio-test.sh -u -e "mp3"" --days_ago 1 -p "SIMA-173.64-" /home/tim/Desktop/radio-recordings/ /home/tim/Desktop/processed-radio-recordings/
+
+. radio-test.sh -u -e "mp3"" --days_ago 1 -p "SIMA-173.64-" /home/tim/Desktop/radio-recordings/ /home/tim/Desktop/processed-radio-recordings/
+
+. radio-test.sh -u -e mp3 --days_ago 2 -p "SIMA-173.64-" /home/tim/Desktop/radio-recordings/ out
+
+. radio-test.sh -d -u "1STMc4lIfTMqL-Z-Ujq1w3ev-jWmi0o72" -e mp3 --days_ago 8 -p "SIMA-173.64-" /home/tim/Desktop/radio-recordings/ /home/tim/Desktop/processed-recordings/
+
+konsole --hold -e "~/Desktop/recording-processor/recording-processor.sh -u 1STMc4lIfTMqL-Z-Ujq1w3ev-jWmi0o72 -e mp3 --days_ago 7 -p 'SIMA-173.64-' /home/tim/Desktop/radio-recordings/ /home/tim/Desktop/processed-recordings/"
+
+./recording-processor.sh -u 1STMc4lIfTMqL-Z-Ujq1w3ev-jWmi0o72 -e mp3 --days_ago 9 -p 'SIMA-173.64-' /home/tim/Desktop/radio-recordings/ /home/tim/Desktop/processed-recordings/ >> ~/Desktop/radio.log 2>&1
