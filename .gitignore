@@ -1,0 +1,11 @@
+# Swap Files #
+.*.kate-swp
+.swp.*
+
+.directory
+
+# Ending with ~
+*~
+
+# 1
+1
